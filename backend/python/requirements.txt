@@ -1,0 +1,6 @@
+requests               # For fetching data from the Node.js API
+nltk                   # Natural Language Toolkit for sentiment analysis
+nrclex                 # NRC Lexicon for emotion analysis
+numpy                  # For numerical operations (e.g., averaging sentiment scores)
+praw                   # Python Reddit API Wrapper for data scraping (if needed later)
+python-dotenv          # For environment variable management
