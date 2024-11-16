@@ -1,6 +1,7 @@
 const express = require('express');
 const dotenv = require('dotenv');
 const redditRoute = require('./routes/redditRoute');
+const dbRoute = require('./routes/dbRoute');
 
 dotenv.config();
 
@@ -12,6 +13,7 @@ app.use(express.json());
 
 // Routes
 app.use('/api/reddit', redditRoute);
+app.use('/api/', dbRoute);
 
 // Start the server
 app.listen(PORT, () => {

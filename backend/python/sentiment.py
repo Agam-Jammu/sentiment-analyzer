@@ -10,6 +10,7 @@ import json
 
 # Configuration
 NODE_API_URL = "http://localhost:3000/api/reddit"  # Node.js API base URL
+MICROSERVICE_API_URL = "http://localhost:3000/api/saveData"  # Microservice API endpoint
 
 # Initialize sentiment analyzer
 analyzer = SentimentIntensityAnalyzer()
@@ -109,7 +110,7 @@ def compute_overall_scores(sentiment_score, emotion_scores):
 
     return overall_positivity, overall_negativity
 
-# Main function to fetch, analyze, and output data
+# Main function to fetch, analyze, and send data
 def process_subreddit(subreddit):
     data = get_data(subreddit)
     if not data:
@@ -145,13 +146,14 @@ def process_subreddit(subreddit):
         "data": data
     }
 
-    # Save results to a JSON file
-    output_file = f"{subreddit}_sentiment_analysis.json"
-    with open(output_file, "w", encoding='utf-8') as f:
-        json.dump(output_data, f, ensure_ascii=False, indent=2)
-
-    print(f"Analysis completed. Results saved to {output_file}")
+    # Send results to the microservice API
+    try:
+        response = requests.post(MICROSERVICE_API_URL, json=output_data)
+        response.raise_for_status()
+        print("Analysis results sent to the microservice API successfully.")
+    except requests.exceptions.RequestException as e:
+        print(f"Error sending data to microservice API: {e}")
 
 # Example usage
 if __name__ == "__main__":
-    process_subreddit("feminism")
+    process_subreddit("technology")

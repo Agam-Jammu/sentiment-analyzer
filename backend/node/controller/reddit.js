@@ -20,7 +20,7 @@ const reddit = new snoowrap({
 // Fetch hot posts and their comments from a given subreddit
 async function fetchComments(subredditName) {
   try {
-    const posts = await reddit.getSubreddit(subredditName).getHot({ limit: 5 });
+    const posts = await reddit.getSubreddit(subredditName).getHot({ limit: 1 });
 
     const detailedPosts = [];
 
