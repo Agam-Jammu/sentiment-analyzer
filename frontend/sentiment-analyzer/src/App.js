@@ -33,18 +33,49 @@ const App = () => {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [emotionComments, setEmotionComments] = useState([]);
   const [selectedEmotion, setSelectedEmotion] = useState("");
+  const [searchMode, setSearchMode] = useState("subreddit"); // 'subreddit' or 'keyword'
+  const [keyword, setKeyword] = useState(""); // For keyword-based searches
 
   const fetchPosts = async () => {
     setLoading(true);
     setError(null);
     setPosts(null);
-
+  
+    // Validation
+    if (!subreddit.trim()) {
+      setError("Subreddit cannot be empty.");
+      setLoading(false);
+      return;
+    }
+    if (searchMode === "keyword" && !keyword.trim()) {
+      setError("Keyword cannot be empty for keyword search.");
+      setLoading(false);
+      return;
+    }
+  
     try {
-      let url = `http://localhost:3001/api/reddit/${subreddit}?sort=${sort}&limit=${limit}`;
-      if (sort === "top") {
-        url += `&time=${time}`;
+      let url;
+      if (searchMode === "subreddit") {
+        url = `http://localhost:3001/api/reddit/${subreddit}?sort=${sort}&limit=${limit}`;
+        if (sort === "top") {
+          url += `&time=${time}`;
+        }
+      } else if (searchMode === "keyword") {
+        url = `http://localhost:3001/api/reddit/${subreddit}/search?keyword=${keyword}&sort=${sort}&limit=${limit}`;
+        if (sort === "top") {
+          url += `&time=${time}`;
+        }
       }
+  
       const response = await axios.get(url);
+  
+      // Check if no results were found
+      if (response.data.data.length === 0) {
+        setError("No results found for your search.");
+        setLoading(false);
+        return;
+      }
+  
       setPosts(response.data.data);
     } catch (err) {
       setError("Failed to fetch posts. Please try again.");
@@ -52,7 +83,8 @@ const App = () => {
       setLoading(false);
     }
   };
-
+  
+  
   // Fetch most emotional comments
   useEffect(() => {
     if (posts && selectedEmotion) {
@@ -115,79 +147,93 @@ const App = () => {
       </AppBar>
 
       {/* Main Container */}
-      <Container style={{ marginTop: "20px" }}>
-        {/* Form Controls */}
-        <Grid container spacing={1} alignItems="center" justifyContent="space-between" style={{ flexWrap: "nowrap" }}>
-          {/* Subreddit Input */}
-          <Grid item xs={12} sm={3}>
-            <TextField
-              label="Subreddit"
-              value={subreddit}
-              onChange={(e) => setSubreddit(e.target.value)}
-              variant="outlined"
-              fullWidth
-            />
-          </Grid>
+<Container style={{ marginTop: "20px" }}>
+  <Grid container spacing={2} alignItems="center">
+    {/* Subreddit/Keyword Input */}
+    <Grid item xs={12} sm={6} md={4}>
+      <TextField
+        label={searchMode === "subreddit" ? "Subreddit" : "Keyword"}
+        value={searchMode === "subreddit" ? subreddit : keyword}
+        onChange={(e) =>
+          searchMode === "subreddit" ? setSubreddit(e.target.value) : setKeyword(e.target.value)
+        }
+        variant="outlined"
+        fullWidth
+      />
+    </Grid>
 
-          {/* Sort Dropdown */}
-          <Grid item xs={12} sm={2}>
-            <FormControl variant="outlined" fullWidth>
-              <InputLabel>Sort</InputLabel>
-              <Select value={sort} onChange={(e) => setSort(e.target.value)} label="Sort">
-                <MenuItem value="new">New</MenuItem>
-                <MenuItem value="top">Top</MenuItem>
-                <MenuItem value="controversial">Controversial</MenuItem>
-                <MenuItem value="rising">Rising</MenuItem>
-                <MenuItem value="hot">Hot</MenuItem>
-              </Select>
-            </FormControl>
-          </Grid>
+    {/* Search Mode Toggle */}
+    <Grid item xs={6} sm={3} md={2}>
+      <Button
+        variant="contained"
+        color="secondary"
+        onClick={() => setSearchMode(searchMode === "subreddit" ? "keyword" : "subreddit")}
+        fullWidth
+      >
+        {searchMode === "subreddit" ? "Keyword Search" : "Subreddit Search"}
+      </Button>
+    </Grid>
 
-          {/* Time Dropdown */}
-          {sort === "top" && (
-            <Grid item xs={12} sm={2}>
-              <FormControl variant="outlined" fullWidth>
-                <InputLabel>Time</InputLabel>
-                <Select value={time} onChange={(e) => setTime(e.target.value)} label="Time">
-                  <MenuItem value="hour">Hour</MenuItem>
-                  <MenuItem value="day">Day</MenuItem>
-                  <MenuItem value="week">Week</MenuItem>
-                  <MenuItem value="month">Month</MenuItem>
-                  <MenuItem value="year">Year</MenuItem>
-                  <MenuItem value="all">All</MenuItem>
-                </Select>
-              </FormControl>
-            </Grid>
-          )}
+    {/* Sort Dropdown */}
+    <Grid item xs={6} sm={3} md={2}>
+      <FormControl variant="outlined" fullWidth>
+        <InputLabel>Sort</InputLabel>
+        <Select value={sort} onChange={(e) => setSort(e.target.value)} label="Sort">
+          <MenuItem value="new">New</MenuItem>
+          <MenuItem value="top">Top</MenuItem>
+          <MenuItem value="controversial">Controversial</MenuItem>
+          <MenuItem value="rising">Rising</MenuItem>
+          <MenuItem value="hot">Hot</MenuItem>
+        </Select>
+      </FormControl>
+    </Grid>
 
-          {/* Limit Dropdown */}
-          <Grid item xs={12} sm={2}>
-            <FormControl variant="outlined" fullWidth>
-              <InputLabel>Limit</InputLabel>
-              <Select value={limit} onChange={(e) => setLimit(e.target.value)} label="Limit">
-                {[10, 20, 50, 100].map((value) => (
-                  <MenuItem key={value} value={value}>
-                    {value}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </Grid>
+    {/* Time Dropdown (only for "top" sort) */}
+    {sort === "top" && (
+      <Grid item xs={6} sm={3} md={2}>
+        <FormControl variant="outlined" fullWidth>
+          <InputLabel>Time</InputLabel>
+          <Select value={time} onChange={(e) => setTime(e.target.value)} label="Time">
+            <MenuItem value="hour">Hour</MenuItem>
+            <MenuItem value="day">Day</MenuItem>
+            <MenuItem value="week">Week</MenuItem>
+            <MenuItem value="month">Month</MenuItem>
+            <MenuItem value="year">Year</MenuItem>
+            <MenuItem value="all">All</MenuItem>
+          </Select>
+        </FormControl>
+      </Grid>
+    )}
 
-          {/* Fetch Button */}
-          <Grid item xs={12} sm={2}>
-            <Button variant="contained" color="secondary" onClick={fetchPosts} fullWidth>
-              Fetch Posts
-            </Button>
-          </Grid>
+    {/* Limit Dropdown */}
+    <Grid item xs={6} sm={3} md={2}>
+      <FormControl variant="outlined" fullWidth>
+        <InputLabel>Limit</InputLabel>
+        <Select value={limit} onChange={(e) => setLimit(e.target.value)} label="Limit">
+          {[10, 20, 50, 100].map((value) => (
+            <MenuItem key={value} value={value}>
+              {value}
+            </MenuItem>
+          ))}
+        </Select>
+      </FormControl>
+    </Grid>
 
-          {/* Emotions Panel Button */}
-          <Grid item xs={12} sm={2}>
-            <Button variant="contained" color="primary" onClick={() => setDrawerOpen(true)} fullWidth>
-              Emotions Panel
-            </Button>
-          </Grid>
-        </Grid>
+    {/* Fetch Posts Button */}
+    <Grid item xs={6} sm={3} md={2}>
+      <Button variant="contained" color="primary" onClick={fetchPosts} fullWidth>
+        Fetch Posts
+      </Button>
+    </Grid>
+
+    {/* Emotions Panel Button */}
+    <Grid item xs={6} sm={3} md={2}>
+      <Button variant="contained" color="secondary" onClick={() => setDrawerOpen(true)} fullWidth>
+        Emotions Panel
+      </Button>
+    </Grid>
+  </Grid>
+
 
         {/* Loading Indicator */}
         {loading && (
@@ -202,6 +248,7 @@ const App = () => {
             {error}
           </Typography>
         )}
+
 
         {/* Posts */}
         {posts && (
