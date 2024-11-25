@@ -1,3 +1,4 @@
+// App.js
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import {
@@ -10,64 +11,14 @@ import {
   MenuItem,
   Button,
   CircularProgress,
-  Card,
-  CardContent,
-  CardActions,
-  IconButton,
-  Collapse,
   Grid,
   InputLabel,
   FormControl,
-  Tooltip,
-  Chip,
-  Drawer,
-  List,
-  ListItem,
-  ListItemText,
-  Divider,
+  CssBaseline, // Import CssBaseline
 } from "@mui/material";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import { styled, createTheme, ThemeProvider } from "@mui/material/styles";
-import SentimentVerySatisfiedIcon from "@mui/icons-material/SentimentVerySatisfied";
-import SentimentVeryDissatisfiedIcon from "@mui/icons-material/SentimentVeryDissatisfied";
-import SentimentSatisfiedIcon from "@mui/icons-material/SentimentSatisfied";
-import { BarChart, Bar, XAxis, YAxis, Tooltip as RechartsTooltip, ResponsiveContainer } from "recharts";
-
-const ExpandMore = styled((props) => {
-  const { expand, ...other } = props;
-  return <IconButton {...other} />;
-})(({ theme, expand }) => ({
-  transform: expand ? "rotate(180deg)" : "rotate(0deg)",
-  marginLeft: "auto",
-  transition: theme.transitions.create("transform", {
-    duration: theme.transitions.duration.shortest,
-  }),
-}));
-
-// Create a dark theme
-const darkTheme = createTheme({
-  palette: {
-    mode: "dark",
-    primary: {
-      main: "#FF4500",
-    },
-    secondary: {
-      main: "#FFA500",
-    },
-  },
-  typography: {
-    fontFamily: "'Comic Sans MS', cursive, sans-serif",
-    h6: {
-      color: "#FFD700",
-    },
-    body2: {
-      color: "#00FFFF",
-    },
-    subtitle2: {
-      color: "#ADFF2F",
-    },
-  },
-});
+import { createTheme, ThemeProvider } from "@mui/material/styles";
+import PostCard from "./PostCard";
+import EmotionsPanel from "./EmotionsPanel";
 
 const App = () => {
   const [subreddit, setSubreddit] = useState("technology");
@@ -81,8 +32,6 @@ const App = () => {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [emotionComments, setEmotionComments] = useState([]);
   const [selectedEmotion, setSelectedEmotion] = useState("");
-
-  const emotionsList = ["anger", "anticipation", "disgust", "fear", "joy", "sadness", "surprise", "trust"];
 
   const fetchPosts = async () => {
     setLoading(true);
@@ -117,8 +66,38 @@ const App = () => {
     }
   }, [posts, selectedEmotion]);
 
+  // Create a dark theme
+  const darkTheme = createTheme({
+    palette: {
+      mode: "dark",
+      background: {
+        default: "#121212", // Set dark background
+        paper: "#1E1E1E", // Set card background
+      },
+      primary: {
+        main: "#FF4500",
+      },
+      secondary: {
+        main: "#FFA500",
+      },
+    },
+    typography: {
+      fontFamily: "'Comic Sans MS', cursive, sans-serif",
+      h6: {
+        color: "#FFD700",
+      },
+      body2: {
+        color: "#00FFFF",
+      },
+      subtitle2: {
+        color: "#ADFF2F",
+      },
+    },
+  });
+
   return (
     <ThemeProvider theme={darkTheme}>
+      <CssBaseline /> {/* Add CssBaseline here */}
       {/* AppBar with enhanced styling */}
       <AppBar position="static">
         <Toolbar>
@@ -234,207 +213,15 @@ const App = () => {
       </Container>
 
       {/* Side Drawer for Emotions */}
-      <Drawer anchor="right" open={drawerOpen} onClose={() => setDrawerOpen(false)}>
-        <div style={{ width: 350, padding: 20 }}>
-          <Typography variant="h6" gutterBottom>
-            Emotion Categories
-          </Typography>
-          <List>
-            {emotionsList.map((emotion) => (
-              <ListItem
-                button
-                key={emotion}
-                onClick={() => setSelectedEmotion(emotion)}
-                selected={selectedEmotion === emotion}
-              >
-                <ListItemText primary={emotion.charAt(0).toUpperCase() + emotion.slice(1)} />
-              </ListItem>
-            ))}
-          </List>
-          <Divider />
-          {selectedEmotion && (
-            <>
-              <Typography variant="h6" style={{ marginTop: 20 }}>
-                Top {selectedEmotion} comments
-              </Typography>
-              {emotionComments.map((comment) => (
-                <Card
-                  variant="outlined"
-                  key={comment.id}
-                  style={{ marginBottom: "10px", backgroundColor: "#333" }}
-                >
-                  <CardContent>
-                    <Typography variant="subtitle2">
-                      <strong>{comment.author}</strong>
-                    </Typography>
-                    <Typography
-                      variant="body2"
-                      style={{ marginTop: "5px", whiteSpace: "pre-wrap" }}
-                    >
-                      {comment.body}
-                    </Typography>
-                    <Typography
-                      variant="caption"
-                      color="textSecondary"
-                      style={{ marginTop: "10px", display: "block" }}
-                    >
-                      Upvotes: {comment.upvotes} | {selectedEmotion}:{" "}
-                      {comment[selectedEmotion]}
-                    </Typography>
-                  </CardContent>
-                </Card>
-              ))}
-            </>
-          )}
-        </div>
-      </Drawer>
+      <EmotionsPanel
+        drawerOpen={drawerOpen}
+        setDrawerOpen={setDrawerOpen}
+        selectedEmotion={selectedEmotion}
+        setSelectedEmotion={setSelectedEmotion}
+        emotionComments={emotionComments}
+      />
     </ThemeProvider>
   );
 };
-
-const PostCard = ({ post }) => {
-  const [expanded, setExpanded] = useState(false);
-
-  const handleExpandClick = () => {
-    setExpanded(!expanded);
-  };
-
-  // Prepare data for emotion graph
-  const emotionData = emotionsList.map((emotion) => {
-    const totalEmotion = post.comments.reduce(
-      (sum, comment) => sum + (comment[emotion] || 0),
-      0
-    );
-    return { emotion, value: totalEmotion };
-  });
-
-  return (
-    <Card
-      style={{
-        height: "100%",
-        display: "flex",
-        flexDirection: "column",
-        backgroundColor: "#424242",
-        color: "#fff",
-      }}
-      elevation={3}
-    >
-      <CardContent style={{ flexGrow: 1 }}>
-        <Typography variant="h6" gutterBottom>
-          {post.title}
-        </Typography>
-        <Typography variant="body2">
-          Posted in{" "}
-          <strong>
-            <a
-              href={`https://www.reddit.com/r/${post.subreddit}/`}
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{ textDecoration: "none", color: "#FF4500" }}
-            >
-              r/{post.subreddit}
-            </a>
-          </strong>
-        </Typography>
-        <Typography>Score: {post.score}</Typography>
-        {/* Emotion Graph */}
-        <div style={{ width: "100%", height: 150, marginTop: 20 }}>
-          <ResponsiveContainer>
-            <BarChart data={emotionData}>
-              <XAxis dataKey="emotion" stroke="#fff" />
-              <YAxis stroke="#fff" />
-              <RechartsTooltip
-                contentStyle={{ backgroundColor: "#333", border: "none" }}
-                labelStyle={{ color: "#fff" }}
-                itemStyle={{ color: "#fff" }}
-              />
-              <Bar dataKey="value" fill="#FFA500" />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-      </CardContent>
-      <CardActions disableSpacing>
-        <Button
-          size="small"
-          color="primary"
-          href={post.permalink}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          View Post
-        </Button>
-        <Tooltip title="Show Comments" arrow>
-          <ExpandMore
-            expand={expanded}
-            onClick={handleExpandClick}
-            aria-expanded={expanded}
-            aria-label="show comments"
-          >
-            <ExpandMoreIcon />
-          </ExpandMore>
-        </Tooltip>
-      </CardActions>
-      <Collapse in={expanded} timeout="auto" unmountOnExit>
-        <CardContent>
-          {post.comments.slice(0, 3).map((comment) => (
-            <Card
-              variant="outlined"
-              key={comment.id}
-              style={{ marginBottom: "10px", backgroundColor: "#333" }}
-            >
-              <CardContent>
-                <Typography variant="subtitle2">
-                  <strong>{comment.author}</strong>
-                </Typography>
-                <Typography
-                  variant="body2"
-                  style={{ marginTop: "5px", whiteSpace: "pre-wrap" }}
-                >
-                  {comment.body}
-                </Typography>
-                <Typography
-                  variant="caption"
-                  color="textSecondary"
-                  style={{ marginTop: "10px", display: "block" }}
-                >
-                  Upvotes: {comment.upvotes}
-                </Typography>
-                {/* Sentiment Indicator */}
-                <SentimentIndicator score={comment.sentiment_score} />
-              </CardContent>
-            </Card>
-          ))}
-        </CardContent>
-      </Collapse>
-    </Card>
-  );
-};
-
-const SentimentIndicator = ({ score }) => {
-  let icon;
-  let color;
-
-  if (score > 0.2) {
-    icon = <SentimentVerySatisfiedIcon />;
-    color = "green";
-  } else if (score < -0.2) {
-    icon = <SentimentVeryDissatisfiedIcon />;
-    color = "red";
-  } else {
-    icon = <SentimentSatisfiedIcon />;
-    color = "orange";
-  }
-
-  return (
-    <Chip
-      icon={icon}
-      label={`Sentiment Score: ${score.toFixed(2)}`}
-      style={{ marginTop: "10px", color: "#fff", backgroundColor: color }}
-    />
-  );
-};
-
-// Emotions list for use in multiple components
-const emotionsList = ["anger", "anticipation", "disgust", "fear", "joy", "sadness", "surprise", "trust"];
 
 export default App;
