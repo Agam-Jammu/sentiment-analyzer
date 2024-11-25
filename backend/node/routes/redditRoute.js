@@ -1,17 +1,18 @@
 const express = require('express');
 const router = express.Router();
 const { fetchComments } = require('../controller/reddit');
-const axios = require('axios'); // Import axios for making HTTP requests
+const axios = require('axios');
 
 router.get('/:subreddit', async (req, res) => {
   const { subreddit } = req.params;
+  const { sort = 'hot', time = 'all', limit = 1 } = req.query; // Extract sort, time, and limit from query parameters with defaults
 
   try {
-    // Fetch data from Reddit
-    const data = await fetchComments(subreddit);
+    // Fetch data from Reddit with the specified sort options
+    const data = await fetchComments(subreddit, sort, time, limit);
 
     // Define your Python endpoint URL
-    const pythonEndpointUrl = 'http://localhost:5000/process'; // Update this to your Python endpoint
+    const pythonEndpointUrl = 'http://localhost:5000/process';
 
     // Post the data to the Python endpoint
     const pythonResponse = await axios.post(pythonEndpointUrl, { data }, {

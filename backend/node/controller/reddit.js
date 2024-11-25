@@ -17,10 +17,33 @@ const reddit = new snoowrap({
   password: REDDIT_PASSWORD
 });
 
-// Fetch hot posts and their comments from a given subreddit
-async function fetchComments(subredditName) {
+// Fetch posts and their comments from a given subreddit with sorting options
+async function fetchComments(subredditName, sort = 'hot', time = 'all', limit = 1) {
   try {
-    const posts = await reddit.getSubreddit(subredditName).getHot({ limit: 1 });
+    limit = parseInt(limit) || 1; // Ensure limit is an integer
+    const subreddit = reddit.getSubreddit(subredditName);
+
+    let posts;
+
+    // Fetch posts based on sort and time options
+    switch (sort.toLowerCase()) {
+      case 'new':
+        posts = await subreddit.getNew({ limit });
+        break;
+      case 'top':
+        posts = await subreddit.getTop({ time: time.toLowerCase(), limit });
+        break;
+      case 'controversial':
+        posts = await subreddit.getControversial({ time: time.toLowerCase(), limit });
+        break;
+      case 'rising':
+        posts = await subreddit.getRising({ limit });
+        break;
+      case 'hot':
+      default:
+        posts = await subreddit.getHot({ limit });
+        break;
+    }
 
     const detailedPosts = [];
 

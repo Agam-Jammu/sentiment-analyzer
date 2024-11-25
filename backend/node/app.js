@@ -1,12 +1,14 @@
 const express = require('express');
 const dotenv = require('dotenv');
 const redditRoute = require('./routes/redditRoute');
-const dbRoute = require('./routes/dbRoute');
+const cors = require('cors');
 
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+app.use(cors());
+
+const PORT = process.env.PORT || 3001;
 
 // Middleware
 app.use(express.json());
