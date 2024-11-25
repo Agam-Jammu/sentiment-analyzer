@@ -42,6 +42,12 @@ const PostCard = ({ post }) => {
     return { emotion, value: totalEmotion };
   });
 
+  // Filter and sort extreme comments based on sentiment score
+  const extremeComments = post.comments
+    .filter((comment) => Math.abs(comment.sentiment_score) > 0.2) // Exclude neutral comments
+    .sort((a, b) => Math.abs(b.sentiment_score) - Math.abs(a.sentiment_score)) // Sort by absolute value
+    .slice(0, 3); // Limit to the top 3 extreme comments
+
   return (
     <Card
       style={{
@@ -156,7 +162,7 @@ const PostCard = ({ post }) => {
       </CardActions>
       <Collapse in={expanded} timeout="auto" unmountOnExit>
         <CardContent>
-          {post.comments.slice(0, 3).map((comment) => (
+          {extremeComments.map((comment) => (
             <Card
               variant="outlined"
               key={comment.id}
@@ -177,7 +183,7 @@ const PostCard = ({ post }) => {
                   color="textSecondary"
                   style={{ marginTop: "10px", display: "block" }}
                 >
-                  Upvotes: {comment.upvotes}
+                  Sentiment Score: {comment.sentiment_score.toFixed(2)}
                 </Typography>
                 <SentimentIndicator score={comment.sentiment_score} />
               </CardContent>

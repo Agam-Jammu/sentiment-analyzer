@@ -24,6 +24,7 @@ const App = () => {
   const [subreddit, setSubreddit] = useState("technology");
   const [sort, setSort] = useState("top");
   const [time, setTime] = useState("all");
+  const [limit, setLimit] = useState(20); 
   const [posts, setPosts] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -39,7 +40,7 @@ const App = () => {
     setPosts(null);
 
     try {
-      let url = `http://localhost:3001/api/reddit/${subreddit}?sort=${sort}&limit=100`;
+      let url = `http://localhost:3001/api/reddit/${subreddit}?sort=${sort}&limit=${limit}`;
       if (sort === "top") {
         url += `&time=${time}`;
       }
@@ -116,8 +117,9 @@ const App = () => {
       {/* Main Container */}
       <Container style={{ marginTop: "20px" }}>
         {/* Form Controls */}
-        <Grid container spacing={2} alignItems="center">
-          <Grid item xs={12} sm={4}>
+        <Grid container spacing={1} alignItems="center" justifyContent="space-between" style={{ flexWrap: "nowrap" }}>
+          {/* Subreddit Input */}
+          <Grid item xs={12} sm={3}>
             <TextField
               label="Subreddit"
               value={subreddit}
@@ -126,14 +128,12 @@ const App = () => {
               fullWidth
             />
           </Grid>
-          <Grid item xs={6} sm={2}>
+
+          {/* Sort Dropdown */}
+          <Grid item xs={12} sm={2}>
             <FormControl variant="outlined" fullWidth>
               <InputLabel>Sort</InputLabel>
-              <Select
-                value={sort}
-                onChange={(e) => setSort(e.target.value)}
-                label="Sort"
-              >
+              <Select value={sort} onChange={(e) => setSort(e.target.value)} label="Sort">
                 <MenuItem value="new">New</MenuItem>
                 <MenuItem value="top">Top</MenuItem>
                 <MenuItem value="controversial">Controversial</MenuItem>
@@ -142,16 +142,13 @@ const App = () => {
               </Select>
             </FormControl>
           </Grid>
-          {/* Conditionally render the Time option */}
+
+          {/* Time Dropdown */}
           {sort === "top" && (
-            <Grid item xs={6} sm={2}>
+            <Grid item xs={12} sm={2}>
               <FormControl variant="outlined" fullWidth>
                 <InputLabel>Time</InputLabel>
-                <Select
-                  value={time}
-                  onChange={(e) => setTime(e.target.value)}
-                  label="Time"
-                >
+                <Select value={time} onChange={(e) => setTime(e.target.value)} label="Time">
                   <MenuItem value="hour">Hour</MenuItem>
                   <MenuItem value="day">Day</MenuItem>
                   <MenuItem value="week">Week</MenuItem>
@@ -162,25 +159,31 @@ const App = () => {
               </FormControl>
             </Grid>
           )}
-          <Grid item xs={6} sm={2}>
-            <Button
-              variant="contained"
-              color="secondary"
-              onClick={fetchPosts}
-              fullWidth
-              style={{ height: "56px" }}
-            >
+
+          {/* Limit Dropdown */}
+          <Grid item xs={12} sm={2}>
+            <FormControl variant="outlined" fullWidth>
+              <InputLabel>Limit</InputLabel>
+              <Select value={limit} onChange={(e) => setLimit(e.target.value)} label="Limit">
+                {[10, 20, 50, 100].map((value) => (
+                  <MenuItem key={value} value={value}>
+                    {value}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Grid>
+
+          {/* Fetch Button */}
+          <Grid item xs={12} sm={2}>
+            <Button variant="contained" color="secondary" onClick={fetchPosts} fullWidth>
               Fetch Posts
             </Button>
           </Grid>
-          <Grid item xs={6} sm={2}>
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={() => setDrawerOpen(true)}
-              fullWidth
-              style={{ height: "56px" }}
-            >
+
+          {/* Emotions Panel Button */}
+          <Grid item xs={12} sm={2}>
+            <Button variant="contained" color="primary" onClick={() => setDrawerOpen(true)} fullWidth>
               Emotions Panel
             </Button>
           </Grid>
