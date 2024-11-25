@@ -8,11 +8,23 @@ router.get('/:subreddit', async (req, res) => {
   const { sort = 'hot', time = 'all', limit = 1 } = req.query; // Extract sort, time, and limit from query parameters with defaults
 
   try {
+    // Record the start time for Reddit API call
+    const redditStartTime = Date.now();
+
     // Fetch data from Reddit with the specified sort options
     const data = await fetchComments(subreddit, sort, time, limit);
 
+    // Record the end time for Reddit API call
+    const redditEndTime = Date.now();
+    const redditTimeTaken = redditEndTime - redditStartTime;
+
+    console.log(`Reddit API took ${redditTimeTaken} ms`);
+
     // Define your Python endpoint URL
     const pythonEndpointUrl = 'http://localhost:5000/process';
+
+    // Record the start time for Python endpoint call
+    const pythonStartTime = Date.now();
 
     // Post the data to the Python endpoint
     const pythonResponse = await axios.post(pythonEndpointUrl, { data }, {
@@ -21,10 +33,20 @@ router.get('/:subreddit', async (req, res) => {
       }
     });
 
+    // Record the end time for Python endpoint call
+    const pythonEndTime = Date.now();
+    const pythonTimeTaken = pythonEndTime - pythonStartTime;
+
+    console.log(`Python endpoint took ${pythonTimeTaken} ms`);
+
     // Send the response from the Python endpoint back to the client
     res.status(200).json({
       success: true,
-      data: pythonResponse.data.data // Access the 'data' field from the Python response
+      data: pythonResponse.data.data, // Access the 'data' field from the Python response
+      timing: {
+        redditTimeTaken,
+        pythonTimeTaken
+      }
     });
 
   } catch (error) {

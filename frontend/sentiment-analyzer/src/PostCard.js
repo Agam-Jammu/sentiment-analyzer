@@ -1,4 +1,3 @@
-// PostCard.js
 import React, { useState } from "react";
 import {
   Card,
@@ -24,9 +23,14 @@ import { emotionsList } from "./constants";
 
 const PostCard = ({ post }) => {
   const [expanded, setExpanded] = useState(false);
+  const [showFullTitle, setShowFullTitle] = useState(false);
 
   const handleExpandClick = () => {
     setExpanded(!expanded);
+  };
+
+  const handleToggleTitle = () => {
+    setShowFullTitle(!showFullTitle);
   };
 
   // Prepare data for emotion graph
@@ -41,7 +45,7 @@ const PostCard = ({ post }) => {
   return (
     <Card
       style={{
-        height: "100%",
+        height: showFullTitle ? "auto" : "100%",
         display: "flex",
         flexDirection: "column",
         backgroundColor: "#424242",
@@ -49,27 +53,73 @@ const PostCard = ({ post }) => {
       }}
       elevation={3}
     >
-      <CardContent style={{ flexGrow: 1 }}>
-        <Typography variant="h6" gutterBottom>
-          {post.title}
-        </Typography>
-        <Typography variant="body2">
-          Posted in{" "}
-          <strong>
-            <a
-              href={`https://www.reddit.com/r/${post.subreddit}/`}
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{ textDecoration: "none", color: "#FF4500" }}
-            >
-              r/{post.subreddit}
-            </a>
-          </strong>
-        </Typography>
-        <Typography>Score: {post.score}</Typography>
-        {/* Emotion Graph */}
-        <div style={{ width: "100%", height: 150, marginTop: 20 }}>
-          <ResponsiveContainer>
+      <CardContent
+        style={{
+          flexGrow: 1,
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "space-between",
+        }}
+      >
+        {/* Title Section */}
+        <div
+          style={{
+            maxHeight: showFullTitle ? "none" : "100px",
+            overflow: showFullTitle ? "visible" : "hidden",
+            marginBottom: "10px",
+          }}
+        >
+          <Typography variant="h6" style={{ lineHeight: 1.3 }}>
+            {post.title}
+          </Typography>
+        </div>
+
+        {/* Show More/Less Button */}
+        {post.title.length > 100 && (
+          <Button
+            size="small"
+            color="secondary"
+            onClick={handleToggleTitle}
+            style={{ alignSelf: "flex-start", marginBottom: "10px" }}
+          >
+            {showFullTitle ? "Show Less" : "Show More"}
+          </Button>
+        )}
+
+        {/* "Posted in" and "Score" Section */}
+        <div
+          style={{
+            marginBottom: "20px",
+          }}
+        >
+          <Typography variant="body2">
+            Posted in{" "}
+            <strong>
+              <a
+                href={`https://www.reddit.com/r/${post.subreddit}/`}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ textDecoration: "none", color: "#FF4500" }}
+              >
+                r/{post.subreddit}
+              </a>
+            </strong>
+          </Typography>
+          <Typography>Score: {post.score}</Typography>
+        </div>
+
+        {/* Graph Section */}
+        <div
+          style={{
+            width: "100%",
+            height: "150px",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            marginTop: "auto",
+          }}
+        >
+          <ResponsiveContainer width="90%" height="100%">
             <BarChart data={emotionData}>
               <XAxis dataKey="emotion" stroke="#fff" />
               <YAxis stroke="#fff" />
@@ -129,7 +179,6 @@ const PostCard = ({ post }) => {
                 >
                   Upvotes: {comment.upvotes}
                 </Typography>
-                {/* Sentiment Indicator */}
                 <SentimentIndicator score={comment.sentiment_score} />
               </CardContent>
             </Card>

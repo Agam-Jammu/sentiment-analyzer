@@ -39,7 +39,7 @@ const App = () => {
     setPosts(null);
 
     try {
-      let url = `http://localhost:3001/api/reddit/${subreddit}?sort=${sort}`;
+      let url = `http://localhost:3001/api/reddit/${subreddit}?sort=${sort}&limit=100`;
       if (sort === "top") {
         url += `&time=${time}`;
       }

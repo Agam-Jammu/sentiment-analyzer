@@ -18,14 +18,12 @@ const reddit = new snoowrap({
 });
 
 // Fetch posts and their comments from a given subreddit with sorting options
-async function fetchComments(subredditName, sort = 'hot', time = 'all', limit = 1) {
+const fetchComments = async (subredditName, sort = 'hot', time = 'all', limit = 1) => {
   try {
-    limit = parseInt(limit) || 1; // Ensure limit is an integer
+    limit = parseInt(limit) || 1;
     const subreddit = reddit.getSubreddit(subredditName);
 
     let posts;
-
-    // Fetch posts based on sort and time options
     switch (sort.toLowerCase()) {
       case 'new':
         posts = await subreddit.getNew({ limit });
@@ -45,10 +43,9 @@ async function fetchComments(subredditName, sort = 'hot', time = 'all', limit = 
         break;
     }
 
-    const detailedPosts = [];
-
-    for (const post of posts) {
-      const comments = await post.expandReplies({ limit: 5, depth: 1 });
+    // Fetch comments concurrently
+    const detailedPosts = await Promise.all(posts.map(async (post) => {
+      const comments = await post.expandReplies({ limit: 10, depth: 1 });
       const commentDetails = comments.comments.map((comment) => ({
         id: comment.id,
         name: comment.name,
@@ -62,7 +59,7 @@ async function fetchComments(subredditName, sort = 'hot', time = 'all', limit = 
         permalink: `https://www.reddit.com${comment.permalink}`
       }));
 
-      detailedPosts.push({
+      return {
         id: post.id,
         title: post.title,
         url: post.url,
@@ -73,13 +70,14 @@ async function fetchComments(subredditName, sort = 'hot', time = 'all', limit = 
         timestamp: post.created_utc,
         permalink: `https://www.reddit.com${post.permalink}`,
         comments: commentDetails
-      });
-    }
+      };
+    }));
 
     return detailedPosts;
   } catch (error) {
     throw new Error(`Error fetching data from subreddit ${subredditName}: ${error.message}`);
   }
-}
+};
+
 
 module.exports = { fetchComments };

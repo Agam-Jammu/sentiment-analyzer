@@ -1,4 +1,3 @@
-// EmotionsPanel.js
 import React from "react";
 import {
   Drawer,
@@ -10,7 +9,6 @@ import {
   Card,
   CardContent,
 } from "@mui/material";
-import { emotionsList } from "./constants";
 
 const EmotionsPanel = ({
   drawerOpen,
@@ -25,25 +23,51 @@ const EmotionsPanel = ({
         Emotion Categories
       </Typography>
       <List>
-        {emotionsList.map((emotion) => (
-          <ListItem
-            button
-            key={emotion}
-            onClick={() => setSelectedEmotion(emotion)}
-            selected={selectedEmotion === emotion}
-          >
-            <ListItemText
-              primary={emotion.charAt(0).toUpperCase() + emotion.slice(1)}
-            />
-          </ListItem>
-        ))}
+        {/* Standard emotions */}
+        {["anger", "anticipation", "disgust", "fear", "joy", "sadness", "surprise", "trust"].map(
+          (emotion) => (
+            <ListItem
+              button
+              key={emotion}
+              onClick={() => setSelectedEmotion(emotion)}
+              selected={selectedEmotion === emotion}
+            >
+              <ListItemText
+                primary={emotion.charAt(0).toUpperCase() + emotion.slice(1)}
+              />
+            </ListItem>
+          )
+        )}
+
+        {/* Overall Positivity and Negativity */}
+        <ListItem
+          button
+          onClick={() => setSelectedEmotion("overall_positivity")}
+          selected={selectedEmotion === "overall_positivity"}
+        >
+          <ListItemText primary="Overall Positivity" />
+        </ListItem>
+        <ListItem
+          button
+          onClick={() => setSelectedEmotion("overall_negativity")}
+          selected={selectedEmotion === "overall_negativity"}
+        >
+          <ListItemText primary="Overall Negativity" />
+        </ListItem>
       </List>
       <Divider />
       {selectedEmotion && (
         <>
           <Typography variant="h6" style={{ marginTop: 20 }}>
-            Top {selectedEmotion} comments
+            {/* Render appropriate title */}
+            Top {selectedEmotion === "overall_positivity"
+              ? "Overall Positivity"
+              : selectedEmotion === "overall_negativity"
+              ? "Overall Negativity"
+              : selectedEmotion.charAt(0).toUpperCase() + selectedEmotion.slice(1)}{" "}
+            Comments
           </Typography>
+          {/* Render the comments */}
           {emotionComments.map((comment) => (
             <Card
               variant="outlined"
@@ -65,7 +89,12 @@ const EmotionsPanel = ({
                   color="textSecondary"
                   style={{ marginTop: "10px", display: "block" }}
                 >
-                  Upvotes: {comment.upvotes} | {selectedEmotion}:{" "}
+                  Upvotes: {comment.upvotes} |{" "}
+                  {selectedEmotion === "overall_positivity"
+                    ? "Overall Positivity"
+                    : selectedEmotion === "overall_negativity"
+                    ? "Overall Negativity"
+                    : selectedEmotion.charAt(0).toUpperCase() + selectedEmotion.slice(1)}:{" "}
                   {comment[selectedEmotion]}
                 </Typography>
               </CardContent>
