@@ -76,7 +76,7 @@ router.get('/:subreddit', async (req, res) => {
 
 router.get('/:subreddit/search', async (req, res) => {
   const { subreddit } = req.params;
-  const { keyword, limit = 1 } = req.query;
+  const { keyword, sort = 'relevance', time = 'all', limit = 1 } = req.query;
 
   if (!keyword) {
     return res.status(400).json({
@@ -90,7 +90,7 @@ router.get('/:subreddit/search', async (req, res) => {
     const redditStartTime = Date.now();
 
     // Fetch data by searching for the keyword in the subreddit
-    const data = await searchSubreddit(subreddit, keyword, limit);
+    const data = await searchSubreddit(subreddit, keyword, sort, time, limit);
 
     // Record the end time for Reddit API call
     const redditEndTime = Date.now();
@@ -151,6 +151,5 @@ router.get('/:subreddit/search', async (req, res) => {
     }
   }
 });
-
 
 module.exports = router;

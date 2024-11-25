@@ -79,19 +79,19 @@ const fetchPosts = async (subredditName, sort = 'hot', time = 'all', limit = 1) 
   }
 };
 
-// Search for a keyword within a subreddit and fetch posts with comments
-const searchSubreddit = async (subredditName, keyword, limit = 1) => {
+const searchSubreddit = async (subredditName, keyword, sort = 'relevance', time = 'all', limit = 1) => {
   try {
     limit = parseInt(limit) || 1;
     const subreddit = reddit.getSubreddit(subredditName);
 
+    // Build search options dynamically based on `sort` and `time`
+    const searchOptions = { query: keyword, sort: sort.toLowerCase(), limit };
+    if (sort.toLowerCase() === 'top') {
+      searchOptions.time = time.toLowerCase();
+    }
+
     // Search for posts containing the keyword
-    const searchResults = await subreddit.search({
-      query: keyword,
-      sort: 'relevance', // You can modify sort options like 'new', 'top', etc.
-      time: 'all', // Options: 'all', 'day', 'hour', 'month', etc.
-      limit
-    });
+    const searchResults = await subreddit.search(searchOptions);
 
     // Fetch comments concurrently
     const detailedPosts = await Promise.all(searchResults.map(async (post) => {
