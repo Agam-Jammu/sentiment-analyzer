@@ -6,12 +6,17 @@ const cors = require('cors');
 dotenv.config();
 
 const app = express();
-app.use(cors());
-
 const PORT = process.env.PORT || 3001;
 
 // Middleware
 app.use(express.json());
+
+// CORS setup
+const corsOptions = {
+  origin: ['http://localhost:3000'], // Replace with actual domains
+  methods: ['GET', 'POST'],
+};
+app.use(cors(corsOptions));
 
 // Routes
 app.use('/api/reddit', redditRoute);

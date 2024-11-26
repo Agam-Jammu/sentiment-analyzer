@@ -21,7 +21,7 @@ router.get('/:subreddit', async (req, res) => {
     console.log(`Reddit API took ${redditTimeTaken} ms`);
 
     // Define your Python endpoint URL
-    const pythonEndpointUrl = 'http://localhost:5000/process';
+    const pythonEndpointUrl = 'https://sentiment-analysis-app.herokuapp.com/process';
 
     // Record the start time for Python endpoint call
     const pythonStartTime = Date.now();
@@ -99,7 +99,7 @@ router.get('/:subreddit/search', async (req, res) => {
     console.log(`Reddit API took ${redditTimeTaken} ms`);
 
     // Define your Python endpoint URL
-    const pythonEndpointUrl = 'http://localhost:5000/process';
+    const pythonEndpointUrl = 'https://sentiment-analysis-app.herokuapp.com/process';
 
     // Record the start time for Python endpoint call
     const pythonStartTime = Date.now();

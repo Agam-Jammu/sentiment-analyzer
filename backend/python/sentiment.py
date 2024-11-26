@@ -4,6 +4,10 @@ from nltk.sentiment import SentimentIntensityAnalyzer
 from nrclex import NRCLex
 import nltk
 import numpy as np
+import os
+
+nltk.download('vader_lexicon', quiet=True)
+nltk.download('punkt_tab')
 
 # Initialize Flask app
 app = Flask(__name__)
@@ -129,4 +133,5 @@ def process_data():
         return jsonify({'success': False, 'message': 'Error processing data', 'error': str(e)}), 500
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5000)
+    port = int(os.environ.get("PORT", 5000))  # Use Heroku's dynamic port
+    app.run(debug=True, port=port, host='0.0.0.0')  # Ensure it's accessible externally
