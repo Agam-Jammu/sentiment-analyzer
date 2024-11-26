@@ -24,7 +24,7 @@ const App = () => {
   const [subreddit, setSubreddit] = useState("technology");
   const [sort, setSort] = useState("top");
   const [time, setTime] = useState("all");
-  const [limit, setLimit] = useState(20); 
+  const [limit, setLimit] = useState(10); 
   const [posts, setPosts] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -35,11 +35,16 @@ const App = () => {
   const [selectedEmotion, setSelectedEmotion] = useState("");
   const [searchMode, setSearchMode] = useState("subreddit"); // 'subreddit' or 'keyword'
   const [keyword, setKeyword] = useState(""); // For keyword-based searches
+  const [currentPage, setCurrentPage] = useState(1); // Pagination state
+
+  const postsPerPage = 10; // Fixed number of posts per page
 
   const fetchPosts = async () => {
     setLoading(true);
     setError(null);
     setPosts(null);
+
+    setCurrentPage(1); // Reset to the first page on new fetch
   
     // Validation
     if (!subreddit.trim()) {
@@ -83,8 +88,13 @@ const App = () => {
       setLoading(false);
     }
   };
-  
-  
+
+  // Calculate current posts to display
+  const indexOfLastPost = currentPage * postsPerPage;
+  const indexOfFirstPost = indexOfLastPost - postsPerPage;
+  const currentPosts = posts ? posts.slice(indexOfFirstPost, indexOfLastPost) : [];
+  const totalPages = posts ? Math.ceil(posts.length / postsPerPage) : 0;
+
   // Fetch most emotional comments
   useEffect(() => {
     if (posts && selectedEmotion) {
@@ -147,20 +157,20 @@ const App = () => {
       </AppBar>
 
       {/* Main Container */}
-<Container style={{ marginTop: "20px" }}>
-  <Grid container spacing={2} alignItems="center">
-    {/* Subreddit/Keyword Input */}
-    <Grid item xs={12} sm={6} md={4}>
-      <TextField
-        label={searchMode === "subreddit" ? "Subreddit" : "Keyword"}
-        value={searchMode === "subreddit" ? subreddit : keyword}
-        onChange={(e) =>
-          searchMode === "subreddit" ? setSubreddit(e.target.value) : setKeyword(e.target.value)
-        }
-        variant="outlined"
-        fullWidth
-      />
-    </Grid>
+      <Container style={{ marginTop: "20px" }}>
+        <Grid container spacing={2} alignItems="center">
+          {/* Subreddit/Keyword Input */}
+          <Grid item xs={12} sm={6} md={4}>
+            <TextField
+              label={searchMode === "subreddit" ? "Subreddit" : "Keyword"}
+              value={searchMode === "subreddit" ? subreddit : keyword}
+              onChange={(e) =>
+                searchMode === "subreddit" ? setSubreddit(e.target.value) : setKeyword(e.target.value)
+              }
+              variant="outlined"
+              fullWidth
+            />
+          </Grid>
 
     {/* Search Mode Toggle */}
     <Grid item xs={6} sm={3} md={2}>
@@ -210,7 +220,7 @@ const App = () => {
       <FormControl variant="outlined" fullWidth>
         <InputLabel>Limit</InputLabel>
         <Select value={limit} onChange={(e) => setLimit(e.target.value)} label="Limit">
-          {[10, 20, 50, 100].map((value) => (
+          {[10, 25, 50].map((value) => (
             <MenuItem key={value} value={value}>
               {value}
             </MenuItem>
@@ -251,17 +261,43 @@ const App = () => {
 
 
         {/* Posts */}
-        {posts && (
+        {currentPosts && (
           <Grid container spacing={3} style={{ marginTop: "20px" }}>
-            {posts.map((post) => (
+            {currentPosts.map((post) => (
               <Grid item xs={12} sm={6} md={4} key={post.id}>
                 <PostCard post={post} />
               </Grid>
             ))}
           </Grid>
         )}
-      </Container>
+           {/* Pagination Controls */}
+           {totalPages > 1 && (
 
+        <div style={{ display: "flex", justifyContent: "center", marginTop: "20px" }}>
+          <Button
+            variant="contained"
+            color="secondary"
+            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+            disabled={currentPage === 1}
+            style={{ margin: "0 5px" }}
+          >
+            Previous
+          </Button>
+          <Typography style={{ alignSelf: "center", margin: "0 10px" }}>
+            Page {currentPage} of {totalPages}
+          </Typography>
+          <Button
+            variant="contained"
+            color="secondary"
+            onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+            disabled={currentPage === totalPages}
+            style={{ margin: "0 5px" }}
+          >
+            Next
+          </Button>
+        </div>
+        )}
+      </Container>
       {/* Side Drawer for Emotions */}
       <EmotionsPanel
         drawerOpen={drawerOpen}
