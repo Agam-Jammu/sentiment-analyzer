@@ -3,6 +3,8 @@ const router = express.Router();
 const { fetchPosts, searchSubreddit } = require('../controller/reddit');
 const axios = require('axios');
 
+const pythonEndpointUrl = 'https://vibecheck123-python-b1d53e1312fd.herokuapp.com/process';
+
 router.get('/:subreddit', async (req, res) => {
   const { subreddit } = req.params;
   const { sort = 'hot', time = 'all', limit = 1 } = req.query; // Extract sort, time, and limit from query parameters with defaults
@@ -19,9 +21,6 @@ router.get('/:subreddit', async (req, res) => {
     const redditTimeTaken = redditEndTime - redditStartTime;
 
     console.log(`Reddit API took ${redditTimeTaken} ms`);
-
-    // Define your Python endpoint URL
-    const pythonEndpointUrl = 'https://vibecheck123-python.herokuapp.com/process';
 
     // Record the start time for Python endpoint call
     const pythonStartTime = Date.now();
@@ -97,9 +96,6 @@ router.get('/:subreddit/search', async (req, res) => {
     const redditTimeTaken = redditEndTime - redditStartTime;
 
     console.log(`Reddit API took ${redditTimeTaken} ms`);
-
-    // Define your Python endpoint URL
-    const pythonEndpointUrl = 'https://vibecheck123-python.herokuapp.com/process';
 
     // Record the start time for Python endpoint call
     const pythonStartTime = Date.now();
