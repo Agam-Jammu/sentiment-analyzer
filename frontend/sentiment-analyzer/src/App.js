@@ -1,6 +1,7 @@
 // App.js
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import IntroScreen from "./IntroScreen";
 import {
   AppBar,
   Toolbar,
@@ -19,6 +20,7 @@ import {
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import PostCard from "./PostCard";
 import EmotionsPanel from "./EmotionsPanel";
+import LoadingAnimation from "./loader";
 
 const App = () => {
   const [subreddit, setSubreddit] = useState("technology");
@@ -36,6 +38,7 @@ const App = () => {
   const [searchMode, setSearchMode] = useState("subreddit"); // 'subreddit' or 'keyword'
   const [keyword, setKeyword] = useState(""); // For keyword-based searches
   const [currentPage, setCurrentPage] = useState(1); // Pagination state
+  const [showIntro, setShowIntro] = useState(true);
 
   const postsPerPage = 10; // Fixed number of posts per page
 
@@ -61,33 +64,37 @@ const App = () => {
     try {
       let url;
       if (searchMode === "subreddit") {
-        url = `http://localhost:3001/api/reddit/${subreddit}?sort=${sort}&limit=${limit}`;
+        url = `https://vibecheck123-node-c79772ab2815.herokuapp.com/api/reddit/${subreddit}?sort=${sort}&limit=${limit}`;
         if (sort === "top") {
           url += `&time=${time}`;
         }
       } else if (searchMode === "keyword") {
-        url = `http://localhost:3001/api/reddit/${subreddit}/search?keyword=${keyword}&sort=${sort}&limit=${limit}`;
+        url = `https://vibecheck123-node-c79772ab2815.herokuapp.com/api/reddit/${subreddit}/search?keyword=${keyword}&sort=${sort}&limit=${limit}`;
         if (sort === "top") {
           url += `&time=${time}`;
         }
       }
-  
+    
       const response = await axios.get(url);
-  
+    
       // Check if no results were found
       if (response.data.data.length === 0) {
         setError("No results found for your search.");
         setLoading(false);
         return;
       }
-  
+    
       setPosts(response.data.data);
     } catch (err) {
-      setError("Failed to fetch posts. Please try again.");
+      if (err.response?.status === 500 && err.message.includes("an error occured")) {
+        setError("Reddit's rate limit has been exceeded. Please wait a few minutes and try again.");
+      } else {
+        setError("Failed to fetch posts. Please try again.");
+      }
     } finally {
       setLoading(false);
     }
-  };
+  }
 
   // Calculate current posts to display
   const indexOfLastPost = currentPage * postsPerPage;
@@ -108,6 +115,10 @@ const App = () => {
       setEmotionComments([]);
     }
   }, [posts, selectedEmotion]);
+
+  if (showIntro) {
+    return <IntroScreen onComplete={() => setShowIntro(false)} />;
+  }
 
   // Create a dark theme
   const darkTheme = createTheme({
@@ -253,7 +264,7 @@ const App = () => {
         {/* Loading Indicator */}
         {loading && (
           <div style={{ textAlign: "center", marginTop: "20px" }}>
-            <CircularProgress color="secondary" />
+            <LoadingAnimation />
           </div>
         )}
 
@@ -311,6 +322,20 @@ const App = () => {
         setSelectedEmotion={setSelectedEmotion}
         emotionComments={emotionComments}
       />
+
+      {/* Footer Section */}
+      <footer style={{ 
+        marginTop: "30px", 
+        textAlign: "center", 
+        padding: "10px", 
+        backgroundColor: "#1E1E1E", 
+        color: "#FFD700", 
+        fontFamily: "'Comic Sans MS', cursive, sans-serif" 
+      }}>
+        <Typography variant="subtitle1">
+          Built with 💻, ☕, and a dash of 🎩 by <span style={{ color: "#FFA500", fontWeight: "bold" }}>Agam Jammu</span>
+        </Typography>
+      </footer>
     </ThemeProvider>
   );
 };
