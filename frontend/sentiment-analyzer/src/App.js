@@ -198,23 +198,6 @@ const App = () => {
       </FormControl>
     </Grid>
 
-    {/* Time Dropdown (only for "top" sort) */}
-    {sort === "top" && (
-      <Grid item xs={6} sm={3} md={2}>
-        <FormControl variant="outlined" fullWidth>
-          <InputLabel>Time</InputLabel>
-          <Select value={time} onChange={(e) => setTime(e.target.value)} label="Time">
-            <MenuItem value="hour">Hour</MenuItem>
-            <MenuItem value="day">Day</MenuItem>
-            <MenuItem value="week">Week</MenuItem>
-            <MenuItem value="month">Month</MenuItem>
-            <MenuItem value="year">Year</MenuItem>
-            <MenuItem value="all">All</MenuItem>
-          </Select>
-        </FormControl>
-      </Grid>
-    )}
-
     {/* Limit Dropdown */}
     <Grid item xs={6} sm={3} md={2}>
       <FormControl variant="outlined" fullWidth>
@@ -225,6 +208,28 @@ const App = () => {
               {value}
             </MenuItem>
           ))}
+        </Select>
+      </FormControl>
+    </Grid>
+
+    <Grid item xs={6} sm={3} md={2}>
+    <FormControl
+      variant="outlined"
+      fullWidth
+      style={{ visibility: sort === "top" ? "visible" : "hidden" }}
+    >
+      <InputLabel>Time</InputLabel>
+        <Select
+          value={time}
+          onChange={(e) => setTime(e.target.value)}
+          label="Time"
+        >
+          <MenuItem value="hour">Hour</MenuItem>
+          <MenuItem value="day">Day</MenuItem>
+          <MenuItem value="week">Week</MenuItem>
+          <MenuItem value="month">Month</MenuItem>
+          <MenuItem value="year">Year</MenuItem>
+          <MenuItem value="all">All</MenuItem>
         </Select>
       </FormControl>
     </Grid>

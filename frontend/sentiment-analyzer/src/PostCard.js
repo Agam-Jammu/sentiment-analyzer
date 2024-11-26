@@ -117,17 +117,25 @@ const PostCard = ({ post }) => {
         {/* Graph Section */}
         <div
           style={{
-            width: "100%",
+            width: "120%",
             height: "150px",
             display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            marginTop: "auto",
+            justifyContent: "left",
+            alignItems: "left",
+            margin: "0 auto", 
           }}
         >
-          <ResponsiveContainer width="90%" height="100%">
-            <BarChart data={emotionData}>
-              <XAxis dataKey="emotion" stroke="#fff" />
+          <ResponsiveContainer width="150%" height="100%">
+            <BarChart
+              data={emotionData}
+              margin={{ top: 0, bottom: 20, left: 0, right: 100 }} // Add extra margin for rotated labels
+            >
+              <XAxis
+                dataKey="emotion"
+                stroke="#fff"
+                interval={0} // Show all labels
+                tick={{ fontSize: 10, angle: 45, textAnchor: "start" }} // Rotate labels
+              />
               <YAxis stroke="#fff" />
               <RechartsTooltip
                 contentStyle={{ backgroundColor: "#333", border: "none" }}
@@ -138,6 +146,7 @@ const PostCard = ({ post }) => {
             </BarChart>
           </ResponsiveContainer>
         </div>
+
       </CardContent>
       <CardActions disableSpacing>
         <Button
