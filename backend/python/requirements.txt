@@ -5,3 +5,4 @@ numpy                  # For numerical operations (e.g., averaging sentiment sco
 praw                   # Python Reddit API Wrapper for data scraping (if needed later)
 python-dotenv          # For environment variable management
 waitress
+flask
