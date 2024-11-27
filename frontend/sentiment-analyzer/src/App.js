@@ -11,7 +11,6 @@ import {
   Select,
   MenuItem,
   Button,
-  CircularProgress,
   Grid,
   InputLabel,
   FormControl,
@@ -214,7 +213,7 @@ const App = () => {
       <FormControl variant="outlined" fullWidth>
         <InputLabel>Limit</InputLabel>
         <Select value={limit} onChange={(e) => setLimit(e.target.value)} label="Limit">
-          {[10, 25, 50].map((value) => (
+          {[10, 20, 30].map((value) => (
             <MenuItem key={value} value={value}>
               {value}
             </MenuItem>
