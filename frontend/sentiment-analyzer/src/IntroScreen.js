@@ -51,7 +51,7 @@ const IntroScreen = ({ onComplete }) => {
               deleteSpeed={50}
             />
           </span>{" "}
-          Reddit Explorer
+          Sentalyze
         </Typography>
       </motion.div>
 

@@ -155,7 +155,7 @@ const App = () => {
       <AppBar position="static">
         <Toolbar>
           <Typography variant="h6" style={{ flexGrow: 1 }}>
-            Reddit Explorer
+            Sentalyze
           </Typography>
           {/* Added a logo for visual enhancement */}
           <img
