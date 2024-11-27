@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import IntroScreen from "./IntroScreen";
+import './App.css';
 import {
   AppBar,
   Toolbar,
@@ -326,13 +327,17 @@ const App = () => {
       <footer style={{ 
         marginTop: "30px", 
         textAlign: "center", 
-        padding: "10px", 
+        padding: "20px", 
         backgroundColor: "#1E1E1E", 
         color: "#FFD700", 
-        fontFamily: "'Comic Sans MS', cursive, sans-serif" 
+        fontFamily: "'Comic Sans MS', cursive, sans-serif",
+        boxShadow: "0 -4px 10px rgba(0,0,0,0.5)",
       }}>
         <Typography variant="subtitle1">
-          Built with 💻, ☕, and a dash of 🎩 by <span style={{ color: "#FFA500", fontWeight: "bold" }}>Agam Jammu</span>
+          Built with 💻, ☕, and a dash of 🎩 by&nbsp; 
+          <span style={{ color: "#FFA500", fontWeight: "bold" }}>
+            Agam Jammu
+          </span>
         </Typography>
       </footer>
     </ThemeProvider>
