@@ -89,7 +89,7 @@ const App = () => {
       if (err.response?.status === 500 && err.message.includes("an error occured")) {
         setError("Reddit's rate limit has been exceeded. Please wait a few minutes and try again.");
       } else {
-        setError("Failed to fetch posts. Please try again.");
+        setError("Failed to fetch posts. Make sure the subreddit name is correct.");
       }
     } finally {
       setLoading(false);
